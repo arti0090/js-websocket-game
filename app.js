@@ -6,16 +6,50 @@ const io = require('socket.io')(server)
 
 const Player = require('./src/Player');
 const Bullet = require('./src/Bullet');
+const Enemy = require('./src/Enemy');
 
 app.use(express.static(path.join(__dirname, '/')))
+
+
+let gameDimensions = {
+    width: 500,
+    height: 500
+}
 
 let gameTicks = 0;
 
 let gameData = {
     players: [],
-    enemies: [],
+    enemies: generateEnemies(20),
     bullets: [],
 };
+
+let cache = {
+    level: 0,
+};
+
+function generateEnemies(amount, velocity = 1) {
+    let enemies = [];
+
+    let enemiesPerLine = 10;
+
+    let y = 20;
+    let enemyHeight = 30;
+    let enemyWidth = 30;
+
+    let enemyStartX = 20;
+
+    for (let x = 0; x < amount; x++) {
+        if (enemies.length % enemiesPerLine === 0) {
+            y+= enemyHeight + 10;
+            enemyStartX = 20;
+        }
+        enemies.push(new Enemy(enemies.length, enemyStartX += (enemyWidth + 10), y, enemyWidth, enemyHeight, velocity));
+    }
+
+    return enemies;
+}
+
 
 function getRandomInt(min, max) {
     min = Math.ceil(min);
@@ -41,7 +75,7 @@ io.on('connection', socket => {
     socket.id = clients.length;
 
     socket.emit('connected', {id: socket.id});
-    gameData.players.push(new Player(socket.id, 0, 0, randomColor()))
+    gameData.players.push(new Player(socket.id, 150, 480, randomColor()))
     clients.push(socket);
 
     socket.on('move', data => {
@@ -103,32 +137,51 @@ function render() {
 };
 
 function update() {
+    if (gameData.enemies.length === 0) {
+        cache.level++;
+        gameData.enemies = generateEnemies(20, cache.level);
+    }
+
     gameData.players.forEach(player => {
         if (37 in player.keysDown) {
-            player.pos_x -= 3;
+            if (player.pos_x >= 0) {
+                player.pos_x -= 3;
+            }
         }
+
         if (39 in player.keysDown) {
-            player.pos_x += 3;
+            if (player.pos_x + player.width <= gameDimensions.width) {
+                player.pos_x += 3;
+            }
         }
-        if (38 in player.keysDown) {
-            player.pos_y -= 3;
-        }
-        if (40 in player.keysDown) {
-            player.pos_y += 3;
-        }
+
         if (32 in player.keysDown && player.canShoot(gameTicks)) {
-            gameData.bullets.push(new Bullet(gameData.bullets.length, player.pos_x + player.width, player.pos_y + player.height/2))
+            gameData.bullets.push(new Bullet(gameData.bullets.length, player.pos_x + player.width/2 , player.pos_y, player))
         }
     })
 
     for (let x = 0; x < gameData.bullets.length; x++) {
         let bullet = gameData.bullets[x];
-        if (bullet.pos_x + bullet.width < 500) {
-            bullet.pos_x += bullet.velocity;
+        if (bullet.pos_y + bullet.width > 0) {
+            bullet.pos_y -= bullet.velocity;
+
+            for (let y = 0; y < gameData.enemies.length; y++) {
+                if (gameData.enemies[y].checkCollision(bullet)) {
+
+                    let player = getPlayerById(bullet.owner.id);
+
+                    player.points += 5;
+
+                    gameData.bullets.splice(x, 1);
+                    gameData.enemies.splice(y, 1);
+                }
+            }
         } else {
             gameData.bullets.splice(x, 1);
         }
     }
+
+    moveEnemies(gameData);
 
 }
 
@@ -162,4 +215,20 @@ function getPlayerById(id) {
     }
 
     return null;
+}
+
+function getPlayerIndexById(id) {
+    for (let x in gameData.players) {
+        if (gameData.players[x].id === id) {
+            return x;
+        }
+    }
+
+    return null;
+}
+
+function moveEnemies() {
+    gameData.enemies.forEach(enemy => {
+        enemy.update();
+    })
 }

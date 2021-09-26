@@ -2,11 +2,10 @@ const socket = io();
 const canvas = new Canvas('#canvas');
 canvas.setDimensions(500, 500);
 
-let players = [];
-let bullets = [];
+let engine = new Engine(canvas);
 
 socket.on('test', data => {
-    render(data);
+    engine.render(data);
 });
 
 socket.on('connected', data => {
@@ -21,18 +20,19 @@ function test() {};
 
 let lastKey = null;
 document.addEventListener('keydown', (event) => {
-    if (event.keyCode === lastKey) {
+    let keyCode = event.keyCode;
+    if (keyCode === lastKey) {
         return;
     }
 
-    if (event.key.includes("Arrow")) {
-        lastKey = event.keyCode;
-        socket.emit('move', event.keyCode);
+    if (keyCode === 39 || keyCode === 37) {
+        lastKey = keyCode;
+        socket.emit('move', keyCode);
     }
 
-    if (event.keyCode === 32) {
-        lastKey = event.keyCode;
-        socket.emit('shot', event.keyCode);
+    if (keyCode === 32) {
+        lastKey = keyCode;
+        socket.emit('shot', keyCode);
     }
 });
 
@@ -43,21 +43,3 @@ document.addEventListener('keyup', (event) => {
         socket.emit('stop', event.keyCode);
     }
 });
-
-function render(data) {
-    canvas.clear()
-    data.game.players.forEach(renderPlayer)
-    data.game.bullets.forEach(renderBullet)
-}
-
-function renderPlayer(element) {
-    let player = new Player(element.id, element.pos_x, element.pos_y, element.color);
-    player.render(canvas);
-    players.push(player);
-}
-
-function renderBullet(element) {
-    let bullet = new Bullet(element.id, element.pos_x, element.pos_y);
-    bullet.render(canvas);
-    bullets.push(bullet);
-}
