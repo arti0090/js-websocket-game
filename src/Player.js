@@ -1,36 +1,49 @@
-class Player {
+const Bullet = require('./Bullet');
+
+module.exports = class Player {
     constructor(id, pos_x, pos_y, color = "red") {
         this.id = id;
         this.pos_x = pos_x;
         this.pos_y = pos_y;
         this.color = color;
-        this.width = 20;
-        this.height = 20;
+        this.width = 40;
+        this.height = 40;
         this.color = color;
         this.keysDown = [];
         this.lastShot = 0;
-        this.bulletCooldown = 20;
-
+        this.bulletCooldown = 10;
+        this.bulletCooldownLeft = this.bulletCooldown;
+        this.velocity = 3;
         this.points = 0;
+        this.currentHealth = 10;
+        this.maxHealth = 10;
     }
 
-    render(canvas) {
-        canvas.draw(this.pos_x, this.pos_y, this.width, this.height, this.color);
-        canvas.write(this.points, this.pos_x + 5, this.pos_y + 10);
+    update(gameTicks) {
+        if (this.bulletCooldownLeft < this.bulletCooldown) {
+            this.bulletCooldownLeft++;
+        }
     }
 
     canShoot(gameTicks) {
-        if (gameTicks >= this.bulletCooldown + this.lastShot) {
+        if (this.bulletCooldownLeft >= this.bulletCooldown) {
             this.lastShot = gameTicks;
+            this.bulletCooldownLeft = 0;
             return true
         }
 
-        else return false;
+        return false;
     }
 
-}
+    onShot() {
+        return [new Bullet(0, this.pos_x + this.width/2 , this.pos_y, this)];
+    }
 
-if(typeof module !== "undefined"){
-    module.exports = Player;
-}
+    moveLeft() {
+        this.pos_x -= this.velocity;
+    }
 
+    moveRight() {
+        this.pos_x += this.velocity;
+    }
+}
