@@ -1,3 +1,5 @@
+const Bullet = require('./Bullet');
+
 module.exports = class Enemy {
 
     constructor(id, pos_x, pos_y, width, height, velocity = null) {
@@ -46,10 +48,9 @@ module.exports = class Enemy {
         this.currentHealth -= bullet.damage;
 
         if (this.currentHealth <= 0) {
-            return 0;
+            return Bullet.EFFECT_TYPE_KILL;
         }
 
-        return 1;
+        return Bullet.EFFECT_TYPE_HIT;
     }
-
 }
