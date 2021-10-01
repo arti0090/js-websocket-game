@@ -2,7 +2,7 @@ const socket = io();
 const canvas = new Canvas('#canvas');
 canvas.setDimensions(500, 500);
 
-let engine = new Engine(canvas);
+let engine = new RenderEngine(canvas);
 
 socket.on('test', data => {
     engine.render(data);
@@ -39,7 +39,6 @@ document.addEventListener('keydown', (event) => {
 document.addEventListener('keyup', (event) => {
     lastKey = null;
     if (event.key.includes("Arrow") || event.keyCode === 32) {
-        console.log('stop' + event.keyCode)
         socket.emit('stop', event.keyCode);
     }
 });

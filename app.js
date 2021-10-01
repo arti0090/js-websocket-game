@@ -5,13 +5,12 @@ const path = require('path')
 const io = require('socket.io')(server)
 
 const Player = require('./src/Player');
-const Bullet = require('./src/Bullet');
 const Enemy = require('./src/Enemy');
 
 app.use(express.static(path.join(__dirname, '/')))
 
 
-let gameDimensions = {
+const gameDimensions = {
     width: 500,
     height: 500
 }
@@ -22,6 +21,7 @@ let gameData = {
     players: [],
     enemies: generateEnemies(20),
     bullets: [],
+    connectedPlayers: 0,
 };
 
 let cache = {
@@ -41,7 +41,7 @@ function generateEnemies(amount, velocity = 1) {
 
     for (let x = 0; x < amount; x++) {
         if (enemies.length % enemiesPerLine === 0) {
-            y+= enemyHeight + 10;
+            y+= enemyHeight + 20;
             enemyStartX = 20;
         }
         enemies.push(new Enemy(enemies.length, enemyStartX += (enemyWidth + 10), y, enemyWidth, enemyHeight, velocity));
@@ -69,13 +69,13 @@ server.listen(port, () => {
 clients = [];
 
 data = {"test": "test"};
-setInterval(function(){ game()}, 6);
+setInterval(function(){ game()}, 1000/60);
 
 io.on('connection', socket => {
     socket.id = clients.length;
 
     socket.emit('connected', {id: socket.id});
-    gameData.players.push(new Player(socket.id, 150, 480, randomColor()))
+    gameData.players.push(new Player(socket.id, 150, 450, randomColor()))
     clients.push(socket);
 
     socket.on('move', data => {
@@ -143,20 +143,27 @@ function update() {
     }
 
     gameData.players.forEach(player => {
+        player.update(gameTicks);
+
         if (37 in player.keysDown) {
             if (player.pos_x >= 0) {
-                player.pos_x -= 3;
+                player.moveLeft();
             }
         }
 
         if (39 in player.keysDown) {
             if (player.pos_x + player.width <= gameDimensions.width) {
-                player.pos_x += 3;
+                player.moveRight();
             }
         }
 
         if (32 in player.keysDown && player.canShoot(gameTicks)) {
-            gameData.bullets.push(new Bullet(gameData.bullets.length, player.pos_x + player.width/2 , player.pos_y, player))
+            let bullets = player.onShot();
+
+            bullets.forEach(bullet => {
+                bullet.id = gameData.bullets.length;
+                gameData.bullets.push(bullet);
+            })
         }
     })
 
@@ -166,14 +173,25 @@ function update() {
             bullet.pos_y -= bullet.velocity;
 
             for (let y = 0; y < gameData.enemies.length; y++) {
-                if (gameData.enemies[y].checkCollision(bullet)) {
-
+                let enemy = gameData.enemies[y];
+                if (enemy.checkCollision(bullet)) {
                     let player = getPlayerById(bullet.owner.id);
 
-                    player.points += 5;
+                    let effect = enemy.onHit(bullet);
+
+                    // enemy died
+                    if (effect === 0) {
+                        player.points += 5;
+                        gameData.enemies.splice(y, 1);
+
+                    }
+
+                    //enemy hit
+                    if (effect === 1) {
+
+                    }
 
                     gameData.bullets.splice(x, 1);
-                    gameData.enemies.splice(y, 1);
                 }
             }
         } else {

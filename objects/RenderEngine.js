@@ -1,4 +1,4 @@
-class Engine{
+class RenderEngine{
     constructor(canvas) {
         this.canvas = canvas;
         this.players = [];
@@ -39,24 +39,33 @@ class Engine{
 
     renderPlayer(element) {
         let player = new Player(element.id, element.pos_x, element.pos_y, element.color);
-        player.points = element.points;
+
+        for(let x in element) {
+            player[x] = element[x];
+        }
+
         player.render(canvas);
         this.players.push(player);
     }
 
     renderBullet(element) {
-        let bullet = new Bullet(element.id, element.pos_x, element.pos_y);
+        let bullet = new Bullet();
+        for(let x in element) {
+            bullet[x] = element[x];
+        }
+
         bullet.render(canvas);
         this.bullets.push(bullet);
     }
 
     renderEnemies(element) {
-        let enemy = new Enemy(element.id, element.pos_x, element.pos_y, element.width ,element.height);
+        let enemy = new Enemy();
+
+        for(let x in element) {
+            enemy[x] = element[x];
+        }
+
         enemy.render(canvas);
         this.enemies.push(enemy);
     }
-}
-
-if(typeof module !== "undefined"){
-    module.exports = Engine;
 }

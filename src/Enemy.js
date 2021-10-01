@@ -1,4 +1,4 @@
-class Enemy {
+module.exports = class Enemy {
 
     constructor(id, pos_x, pos_y, width, height, velocity = null) {
         this.id = id;
@@ -9,6 +9,8 @@ class Enemy {
         this.height = height;
         this.velocity = velocity;
         this.velocityY = 10;
+        this.currentHealth = 10;
+        this.maxHealth = 10;
     }
 
     update () {
@@ -31,12 +33,6 @@ class Enemy {
         }
     }
 
-    render(canvas) {
-        canvas.draw(this.pos_x, this.pos_y, this.width, this.height, this.color);
-        canvas.write(this.velocityY, this.pos_x + 5, this.pos_y + 10);
-
-    }
-
     checkCollision(object) {
         return (
             object.pos_x + object.width >= this.pos_x &&
@@ -46,8 +42,14 @@ class Enemy {
         );
     }
 
-}
+    onHit(bullet) {
+        this.currentHealth -= bullet.damage;
 
-if(typeof module !== "undefined") {
-    module.exports = Enemy;
+        if (this.currentHealth <= 0) {
+            return 0;
+        }
+
+        return 1;
+    }
+
 }
