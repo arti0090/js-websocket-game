@@ -107,7 +107,34 @@ module.exports = class GameEngine {
     }
 
     getData() {
-        return this.data;
+        let enemies = [];
+        this.data.enemies.forEach(enemy => {
+            enemies.push(enemy.data());
+        })
+        let players = [];
+        this.data.players.forEach(player => {
+            players.push(player.data());
+        })
+        let bullets = [];
+        this.data.bullets.forEach(bullet => {
+            bullets.push(bullet.data());
+        })
+        return {
+            players: players,
+            enemies: enemies,
+            bullets: bullets,
+            connectedPlayers: this.data.connectedPlayers,
+        }
+    }
+
+    addObjectToRemove(object){
+        object.remove();
+    }
+
+    handleRemoval() {
+        this.data.bullets = this.data.bullets.filter(object => object.removed === false);
+        this.data.enemies = this.data.enemies.filter(object => object.removed === false);
+        this.data.players = this.data.players.filter(object => object.removed === false);
     }
 
     addObjectToRemove(object){

@@ -35,6 +35,7 @@ class RenderEngine{
 
         this.canvas.draw(0, 0, 500, 30, 'black');
         this.canvas.write(`Leading player points: ${maxScore}`, 10, 20);
+        this.canvas.write(`Enemies: ${data.game.enemies.length}`, 300, 20);
     }
 
     renderPlayer(element) {
