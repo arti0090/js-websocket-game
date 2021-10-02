@@ -4,62 +4,12 @@ const server = require('http').createServer(app)
 const path = require('path')
 const io = require('socket.io')(server)
 
-const Player = require('./src/Player');
-const Enemy = require('./src/Enemy');
+const GameEngine = require('./src/GameEngine');
 
 app.use(express.static(path.join(__dirname, '/')))
 
-
-const gameDimensions = {
-    width: 500,
-    height: 500
-}
-
-let gameTicks = 0;
-
-let gameData = {
-    players: [],
-    enemies: generateEnemies(20),
-    bullets: [],
-    connectedPlayers: 0,
-};
-
-let cache = {
-    level: 0,
-};
-
-function generateEnemies(amount, velocity = 1) {
-    let enemies = [];
-
-    let enemiesPerLine = 10;
-
-    let y = 20;
-    let enemyHeight = 30;
-    let enemyWidth = 30;
-
-    let enemyStartX = 20;
-
-    for (let x = 0; x < amount; x++) {
-        if (enemies.length % enemiesPerLine === 0) {
-            y+= enemyHeight + 20;
-            enemyStartX = 20;
-        }
-        enemies.push(new Enemy(enemies.length, enemyStartX += (enemyWidth + 10), y, enemyWidth, enemyHeight, velocity));
-    }
-
-    return enemies;
-}
-
-
-function getRandomInt(min, max) {
-    min = Math.ceil(min);
-    max = Math.floor(max);
-    return Math.floor(Math.random() * (max - min)) + min;
-}
-
-randomColor = () => {
-    return `rgb(${getRandomInt(0, 255)}, ${getRandomInt(0, 255)}, ${getRandomInt(0, 255)})`;
-}
+let gameEngine = new GameEngine();
+gameEngine.init();
 
 const port = process.env.PORT || 3000
 server.listen(port, () => {
@@ -68,25 +18,21 @@ server.listen(port, () => {
 
 clients = [];
 
-data = {"test": "test"};
 setInterval(function(){ game()}, 1000/60);
 
 io.on('connection', socket => {
     socket.id = clients.length;
 
     socket.emit('connected', {id: socket.id});
-    gameData.players.push(new Player(socket.id, 150, 450, randomColor()))
+    gameEngine.addPlayer(socket.id);
     clients.push(socket);
 
     socket.on('move', data => {
-        movePlayer(socket, data);
+        gameEngine.handleMove(socket, data);
     })
 
-    socket.on('debug', data => {
-        debug(data);
-    })
     socket.on('stop', data => {
-        stopPlayer(socket, data);
+        gameEngine.handleStop(socket, data);
     })
 
     socket.on('disconnect', () => {
@@ -96,119 +42,20 @@ io.on('connection', socket => {
     })
 
     socket.on('shot', data => {
-        shot(socket.id, data);
+        gameEngine.handleShot(socket, data);
     })
 })
-
-function debug(data) {
-    console.log(gameData.bullets.length);
-}
-
-function shot(playerId, data) {
-    let player = getPlayerById(playerId);
-
-    if (player) {
-        player.keysDown[data] = true;
-    }
-}
-
-function movePlayer(socket, data) {
-    player = getPlayerById(socket.id);
-
-    if (player)
-        player.keysDown[data] = true;
-
-    if (player === null) {
-    }
-}
-
-function stopPlayer(socket, data) {
-    player = getPlayerById(socket.id);
-
-    if (player)
-        delete player.keysDown[data];
-}
 
 function render() {
     clients.forEach(client => {
         if (client !== false)
-            client.emit('test', {id: client.id, game: gameData});
+            client.emit('test', {id: client.id, game: gameEngine.getData()});
     })
-};
-
-function update() {
-    if (gameData.enemies.length === 0) {
-        cache.level++;
-        gameData.enemies = generateEnemies(20, cache.level);
-    }
-
-    gameData.players.forEach(player => {
-        player.update(gameTicks);
-
-        if (37 in player.keysDown) {
-            if (player.pos_x >= 0) {
-                player.moveLeft();
-            }
-        }
-
-        if (39 in player.keysDown) {
-            if (player.pos_x + player.width <= gameDimensions.width) {
-                player.moveRight();
-            }
-        }
-
-        if (32 in player.keysDown && player.canShoot(gameTicks)) {
-            let bullets = player.onShot();
-
-            bullets.forEach(bullet => {
-                bullet.id = gameData.bullets.length;
-                gameData.bullets.push(bullet);
-            })
-        }
-    })
-
-    for (let x = 0; x < gameData.bullets.length; x++) {
-        let bullet = gameData.bullets[x];
-        if (bullet.pos_y + bullet.width > 0) {
-            bullet.pos_y -= bullet.velocity;
-
-            for (let y = 0; y < gameData.enemies.length; y++) {
-                let enemy = gameData.enemies[y];
-                if (enemy.checkCollision(bullet)) {
-                    let player = getPlayerById(bullet.owner.id);
-
-                    let effect = enemy.onHit(bullet);
-
-                    // enemy died
-                    if (effect === 0) {
-                        player.points += 5;
-                        gameData.enemies.splice(y, 1);
-
-                    }
-
-                    //enemy hit
-                    if (effect === 1) {
-
-                    }
-
-                    gameData.bullets.splice(x, 1);
-                }
-            }
-        } else {
-            gameData.bullets.splice(x, 1);
-        }
-    }
-
-    moveEnemies(gameData);
-
 }
 
 function game(){
     render();
-
-    update();
-
-    gameTicks++;
+    gameEngine.update();
 }
 
 function removeClient(id) {
@@ -218,35 +65,5 @@ function removeClient(id) {
         }
     }
 
-    for (let x in gameData.players) {
-        if (gameData.players[x].id === id) {
-            gameData.players.splice(x, 1);
-        }
-    }
-}
-
-function getPlayerById(id) {
-    for (let x in gameData.players) {
-        if (gameData.players[x].id === id) {
-            return gameData.players[x];
-        }
-    }
-
-    return null;
-}
-
-function getPlayerIndexById(id) {
-    for (let x in gameData.players) {
-        if (gameData.players[x].id === id) {
-            return x;
-        }
-    }
-
-    return null;
-}
-
-function moveEnemies() {
-    gameData.enemies.forEach(enemy => {
-        enemy.update();
-    })
+    gameEngine.removePlayer(id);
 }
