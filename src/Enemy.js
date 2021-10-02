@@ -17,6 +17,23 @@ module.exports = class Enemy {
         this.maxHealth = 1;
         this.currentHealth = this.maxHealth;
         this.type = ObjectTypes.TYPE_ENEMY;
+        this.removed = false;
+    }
+
+    remove() {
+        this.removed = true;
+    }
+
+    data() {
+        return {
+            pos_x: this.pos_x,
+            pos_y: this.pos_y,
+            width: this.width,
+            height: this.height,
+            currentHealth: this.currentHealth,
+            maxHealth: this.maxHealth,
+            color: this.color,
+        }
     }
 
     update () {
@@ -52,6 +69,7 @@ module.exports = class Enemy {
         this.currentHealth -= bullet.damage;
 
         if (this.currentHealth <= 0) {
+            this.currentHealth = 0;
             return Bullet.EFFECT_TYPE_KILL;
         }
 

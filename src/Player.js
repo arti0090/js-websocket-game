@@ -22,6 +22,25 @@ module.exports = class Player {
         this.currentHealth = 10;
         this.maxHealth = 10;
         this.type = ObjectTypes.TYPE_PLAYER;
+        this.removed = false;
+        this.type = ObjectTypes.TYPE_PLAYER;
+    }
+
+    data() {
+        return {
+            pos_x: this.pos_x,
+            pos_y: this.pos_y,
+            width: this.width,
+            height: this.height,
+            color: this.color,
+            points: this.points,
+            bulletCooldown: this.bulletCooldown,
+            bulletCooldownLeft: this.bulletCooldownLeft,
+        }
+    }
+
+    remove() {
+        this.removed = true;
     }
 
     update(gameTicks) {
