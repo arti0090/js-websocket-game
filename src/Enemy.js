@@ -1,9 +1,12 @@
+'use strict'
+
 const Bullet = require('./Bullet');
+const ObjectTypes = require('./ObjectTypes');
 
 module.exports = class Enemy {
-
     constructor(id, pos_x, pos_y, width, height, velocity = null) {
         this.id = id;
+        this.uuid = global.uuid();
         this.pos_x = pos_x;
         this.pos_y = pos_y;
         this.color = "green";
@@ -11,8 +14,9 @@ module.exports = class Enemy {
         this.height = height;
         this.velocity = velocity;
         this.velocityY = 10;
-        this.currentHealth = 10;
-        this.maxHealth = 10;
+        this.maxHealth = 1;
+        this.currentHealth = this.maxHealth;
+        this.type = ObjectTypes.TYPE_ENEMY;
     }
 
     update () {

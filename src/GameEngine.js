@@ -1,6 +1,8 @@
 const Enemy = require('./Enemy');
 const Player = require('./Player');
 const Bullet = require('./Bullet');
+const ObjectTypes = require('./ObjectTypes');
+
 const functions = require('./functions');
 
 module.exports = class GameEngine {
@@ -9,6 +11,7 @@ module.exports = class GameEngine {
         this.ticks = 0;
         this.data = {};
         this.cache = {};
+        this.objectsToRemove = {};
     }
 
     init() {
@@ -23,9 +26,22 @@ module.exports = class GameEngine {
             bullets: [],
             connectedPlayers: 0,
         };
+        this.cache = {
+            level: 1,
+        }
+
+        this.clearRemoveCache();
+    }
+
+    clearRemoveCache() {
+        [ObjectTypes.TYPE_BULLET, ObjectTypes.TYPE_ENEMY, ObjectTypes.TYPE_PLAYER].forEach(type => {
+            this.objectsToRemove[type] = [];
+        })
     }
 
     update() {
+        this.handleRemoval();
+
         if (this.data.enemies.length === 0) {
             this.cache.level++;
             this.data.enemies = this.generateEnemies(20, this.cache.level);
@@ -61,12 +77,6 @@ module.exports = class GameEngine {
 
             let bullet = this.data.bullets[x];
 
-            if (bullet.pos_y <= 0) {
-                this.data.bullets.splice(x, 1);
-
-                return;
-            }
-
             for (let y = 0; y < this.data.enemies.length; y++) {
                 let enemy = this.data.enemies[y];
                 if (enemy.checkCollision(bullet)) {
@@ -76,10 +86,10 @@ module.exports = class GameEngine {
 
                     if (effect === Bullet.EFFECT_TYPE_KILL) {
                         player.points += 5;
-                        this.data.enemies.splice(y, 1);
+                        global.removeObject(enemy);
                     }
 
-                    this.data.bullets.splice(x, 1);
+                    global.removeObject(bullet);
                 }
             }
 
@@ -98,6 +108,51 @@ module.exports = class GameEngine {
 
     getData() {
         return this.data;
+    }
+
+    addObjectToRemove(object){
+        if (!this.objectsToRemove[object.type]) {
+            this.objectsToRemove[object.type] = [];
+        }
+
+        this.objectsToRemove[object.type].push(this.findObjectIndexByUuid(object.uuid, object.type));
+    }
+
+    findObjectIndexByUuid(uuid, type) {
+        switch (type) {
+            case ObjectTypes.TYPE_BULLET:
+                return this.data.bullets.findIndex(object => object.uuid === uuid);
+            case ObjectTypes.TYPE_ENEMY:
+                return this.data.enemies.findIndex(object => object.uuid === uuid);
+            case ObjectTypes.TYPE_PLAYER:
+                return this.data.players.findIndex(object => object.uuid === uuid);
+        }
+
+        return null;
+    }
+
+    handleRemoval() {
+        let dataToRemove = [];
+
+        [ObjectTypes.TYPE_BULLET, ObjectTypes.TYPE_ENEMY, ObjectTypes.TYPE_PLAYER].forEach(type => {
+            dataToRemove[type] = new Set(
+                this.objectsToRemove[type].sort((a, b) => {
+                    return a-b
+                })
+            )
+        });
+
+        dataToRemove[ObjectTypes.TYPE_BULLET].forEach(index => {
+            this.data.bullets.splice(index, 1);
+        })
+        dataToRemove[ObjectTypes.TYPE_ENEMY].forEach(index => {
+            this.data.enemies.splice(index, 1);
+        })
+        dataToRemove[ObjectTypes.TYPE_PLAYER].forEach(index => {
+            this.data.players.splice(index, 1);
+        })
+
+        this.clearRemoveCache();
     }
 
     handleMove(socket, data) {
@@ -136,7 +191,6 @@ module.exports = class GameEngine {
 
     addPlayer(id) {
         this.data.players.push(new Player(id, 150, 450, functions.getRandomColor()))
-
     }
 
     getPlayerById(id) {
