@@ -8,8 +8,20 @@ const GameEngine = require('./src/GameEngine');
 
 app.use(express.static(path.join(__dirname, '/')))
 
+
+global.uuid = () => {
+    return 'xxxxxxxx-xxxx'.replace(/[xy]/g, function(c) {
+        let r = Math.random() * 16 | 0, v = c === 'x' ? r : (r & 0x3 | 0x8);
+        return v.toString(16);
+    });
+}
+
 let gameEngine = new GameEngine();
 gameEngine.init();
+
+global.removeObject = (object) => {
+    gameEngine.addObjectToRemove(object);
+}
 
 const port = process.env.PORT || 3000
 server.listen(port, () => {

@@ -1,8 +1,12 @@
+'use strict'
+
 const Bullet = require('./Bullet');
+const ObjectTypes = require('./ObjectTypes');
 
 module.exports = class Player {
     constructor(id, pos_x, pos_y, color = "red") {
         this.id = id;
+        this.uuid = global.uuid();
         this.pos_x = pos_x;
         this.pos_y = pos_y;
         this.color = color;
@@ -11,12 +15,13 @@ module.exports = class Player {
         this.color = color;
         this.keysDown = [];
         this.lastShot = 0;
-        this.bulletCooldown = 10;
+        this.bulletCooldown = 15;
         this.bulletCooldownLeft = this.bulletCooldown;
         this.velocity = 3;
         this.points = 0;
         this.currentHealth = 10;
         this.maxHealth = 10;
+        this.type = ObjectTypes.TYPE_PLAYER;
     }
 
     update(gameTicks) {
