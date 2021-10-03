@@ -79,7 +79,7 @@ module.exports = class GameEngine {
 
             for (let y = 0; y < this.data.enemies.length; y++) {
                 let enemy = this.data.enemies[y];
-                if (enemy.checkCollision(bullet)) {
+                if (enemy.checkCollision(bullet) && bullet.removed === false) {
                     let player = this.getPlayerById(bullet.owner.id);
 
                     let effect = enemy.onHit(bullet);
@@ -135,51 +135,6 @@ module.exports = class GameEngine {
         this.data.bullets = this.data.bullets.filter(object => object.removed === false);
         this.data.enemies = this.data.enemies.filter(object => object.removed === false);
         this.data.players = this.data.players.filter(object => object.removed === false);
-    }
-
-    addObjectToRemove(object){
-        if (!this.objectsToRemove[object.type]) {
-            this.objectsToRemove[object.type] = [];
-        }
-
-        this.objectsToRemove[object.type].push(this.findObjectIndexByUuid(object.uuid, object.type));
-    }
-
-    findObjectIndexByUuid(uuid, type) {
-        switch (type) {
-            case ObjectTypes.TYPE_BULLET:
-                return this.data.bullets.findIndex(object => object.uuid === uuid);
-            case ObjectTypes.TYPE_ENEMY:
-                return this.data.enemies.findIndex(object => object.uuid === uuid);
-            case ObjectTypes.TYPE_PLAYER:
-                return this.data.players.findIndex(object => object.uuid === uuid);
-        }
-
-        return null;
-    }
-
-    handleRemoval() {
-        let dataToRemove = [];
-
-        [ObjectTypes.TYPE_BULLET, ObjectTypes.TYPE_ENEMY, ObjectTypes.TYPE_PLAYER].forEach(type => {
-            dataToRemove[type] = new Set(
-                this.objectsToRemove[type].sort((a, b) => {
-                    return a-b
-                })
-            )
-        });
-
-        dataToRemove[ObjectTypes.TYPE_BULLET].forEach(index => {
-            this.data.bullets.splice(index, 1);
-        })
-        dataToRemove[ObjectTypes.TYPE_ENEMY].forEach(index => {
-            this.data.enemies.splice(index, 1);
-        })
-        dataToRemove[ObjectTypes.TYPE_PLAYER].forEach(index => {
-            this.data.players.splice(index, 1);
-        })
-
-        this.clearRemoveCache();
     }
 
     handleMove(socket, data) {
