@@ -18,14 +18,29 @@ module.exports = class Bullet {
         this.damage = 3;
         this.owner = object;
         this.type = ObjectTypes.TYPE_BULLET;
+        this.collision = true;
+        this.collidesWith = [ObjectTypes.TYPE_ENEMY]
         this.removed = false;
-        this.type = ObjectTypes.TYPE_BULLET;
+        this.render = true;
         this.owner.bullets--;
     }
 
     remove() {
         this.removed = true;
         this.owner.bullets++;
+    }
+
+    checkCollision(object) {
+        return (
+            object.pos_x + object.width >= this.pos_x &&
+            object.pos_x <= this.pos_x + this.width &&
+            object.pos_y + object.height >= this.pos_y &&
+            object.pos_y <= this.pos_y + this.height
+        );
+    }
+
+    onCollision(object) {
+        global.removeObject(this);
     }
 
     data() {
