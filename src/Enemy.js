@@ -6,7 +6,6 @@ const ObjectTypes = require('./ObjectTypes');
 module.exports = class Enemy {
     constructor(id, pos_x, pos_y, width, height, velocity = null) {
         this.id = id;
-        this.uuid = global.uuid();
         this.pos_x = pos_x;
         this.pos_y = pos_y;
         this.color = "green";
@@ -41,7 +40,7 @@ module.exports = class Enemy {
             this.velocityY = -10;
         }
 
-        if (this.pos_y < 50) {
+        if (this.pos_y <= global.dimensions().startY) {
             this.velocityY = 10;
         }
 
@@ -50,7 +49,7 @@ module.exports = class Enemy {
             this.velocity = -this.velocity;
             this.pos_y += this.velocityY;
         }
-        if (this.pos_x <= 0) {
+        if (this.pos_x <= global.dimensions().startX) {
             this.velocity = -this.velocity;
             this.pos_y += this.velocityY;
         }

@@ -17,8 +17,10 @@ module.exports = class GameEngine {
     init() {
         this.dimensions = {
             width: 500,
-            height: 500
-        }
+            height: 500,
+            startX: 75,
+            startY: 20
+        };
 
         this.data = {
             players: [],
@@ -51,7 +53,7 @@ module.exports = class GameEngine {
             player.update(this.ticks);
 
             if (37 in player.keysDown) {
-                if (player.pos_x >= 0) {
+                if (player.pos_x >= this.dimensions.startX + player.velocity) {
                     player.moveLeft();
                 }
             }
@@ -85,7 +87,10 @@ module.exports = class GameEngine {
                     let effect = enemy.onHit(bullet);
 
                     if (effect === Bullet.EFFECT_TYPE_KILL) {
-                        player.points += 5;
+                        if (player) {
+                            player.points += 5;
+                        }
+
                         global.removeObject(enemy);
                     }
 
@@ -113,7 +118,9 @@ module.exports = class GameEngine {
         })
         let players = [];
         this.data.players.forEach(player => {
-            players.push(player.data());
+            if (player.render === true) {
+                players.push(player.data());
+            }
         })
         let bullets = [];
         this.data.bullets.forEach(bullet => {
@@ -163,10 +170,31 @@ module.exports = class GameEngine {
         }
     }
 
+    login(socket, data) {
+        let player = this.getPlayerByName(data.name);
+
+        if (!player) {
+            player = this.getPlayerById(socket.id);
+            player.name = data.name;
+
+            return;
+        }
+
+        this.removePlayer(socket.id);
+
+        player.render = true;
+        player.id = socket.id;
+    }
+
+
     removePlayer(id) {
         for (let x in this.data.players) {
             if (this.data.players[x].id === id) {
-                this.data.players.splice(x, 1);
+                if (this.data.players[x].name !== null) {
+                    this.data.players[x].render = false;
+                }else {
+                    this.data.players.splice(x, 1);
+                }
             }
         }
     }
@@ -185,21 +213,31 @@ module.exports = class GameEngine {
         return null;
     }
 
+    getPlayerByName(name) {
+        for (let x in this.data.players) {
+            if (this.data.players[x].name === name) {
+                return this.data.players[x];
+            }
+        }
+
+        return null;
+    }
+
     generateEnemies(amount, velocity = 1) {
         let enemies = [];
 
-        let enemiesPerLine = 10;
+        let enemiesPerLine = 8;
 
-        let y = 20;
+        let y = this.dimensions.startY;
         let enemyHeight = 30;
         let enemyWidth = 30;
 
-        let enemyStartX = 20;
+        let enemyStartX = this.dimensions.startX + 20;
 
         for (let x = 0; x < amount; x++) {
             if (enemies.length % enemiesPerLine === 0) {
                 y+= enemyHeight + 20;
-                enemyStartX = 20;
+                enemyStartX = this.dimensions.startX + 20;
             }
             enemies.push(new Enemy(enemies.length, enemyStartX += (enemyWidth + 10), y, enemyWidth, enemyHeight, velocity));
         }

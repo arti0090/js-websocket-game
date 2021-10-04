@@ -9,7 +9,8 @@ socket.on('test', data => {
 });
 
 socket.on('connected', data => {
-    console.log('connected');
+    engine.setPlayerId(data.id);
+    engine.setDimensions(data.dimensions);
 })
 
 function debug(){
@@ -28,6 +29,15 @@ document.addEventListener('keydown', (event) => {
     if (keyCode === 39 || keyCode === 37) {
         lastKey = keyCode;
         socket.emit('move', keyCode);
+    }
+
+    if (keyCode === 76) {
+        let name = window.prompt('Enter your name here');
+
+        if (!name) return;
+        socket.emit('login', {
+            name: name,
+        });
     }
 
     if (keyCode === 32) {
