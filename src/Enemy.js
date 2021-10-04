@@ -16,7 +16,9 @@ module.exports = class Enemy {
         this.maxHealth = 1;
         this.currentHealth = this.maxHealth;
         this.type = ObjectTypes.TYPE_ENEMY;
+        this.collidesWith = [ObjectTypes.TYPE_BULLET]
         this.removed = false;
+        this.render = true;
     }
 
     remove() {
@@ -52,6 +54,21 @@ module.exports = class Enemy {
         if (this.pos_x <= global.dimensions().startX) {
             this.velocity = -this.velocity;
             this.pos_y += this.velocityY;
+        }
+    }
+
+    onCollision(object) {
+        if (object.type === ObjectTypes.TYPE_BULLET) {
+            let effect = this.onHit(object);
+
+            if (effect === Bullet.EFFECT_TYPE_KILL) {
+                let player = global.getPlayerById(object.owner.id);
+                if (player) {
+                    player.points += 5;
+                }
+
+                global.removeObject(this);
+            }
         }
     }
 

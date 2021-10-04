@@ -9,7 +9,7 @@ socket.on('test', data => {
 });
 
 socket.on('connected', data => {
-    engine.setPlayerId(data.id);
+    engine.setPlayerId(data.socketId);
     engine.setDimensions(data.dimensions);
 })
 

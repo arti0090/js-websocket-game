@@ -6,6 +6,7 @@ const ObjectTypes = require('./ObjectTypes');
 module.exports = class Player {
     constructor(id, pos_x, pos_y, color = "red") {
         this.id = id;
+        this.socketId = id;
         this.uuid = global.uuid();
         this.pos_x = pos_x;
         this.pos_y = pos_y;
@@ -23,11 +24,12 @@ module.exports = class Player {
         this.maxHealth = 10;
         this.type = ObjectTypes.TYPE_PLAYER;
         this.removed = false;
-        this.type = ObjectTypes.TYPE_PLAYER;
+        this.collidesWith = [];
         this.maxBullets = 5;
         this.bullets = 5;
         this.name = null
         this.render = true;
+        this.dimensions = global.dimensions()
     }
 
     data() {
@@ -57,6 +59,26 @@ module.exports = class Player {
         if (this.bulletCooldownLeft < this.bulletCooldown) {
             this.bulletCooldownLeft++;
         }
+
+        if (37 in this.keysDown) {
+            if (this.pos_x >= this.dimensions.startX + this.velocity) {
+                this.moveLeft();
+            }
+        }
+
+        if (39 in this.keysDown) {
+            if (this.pos_x + this.width <= this.dimensions.width) {
+                this.moveRight();
+            }
+        }
+
+        if (32 in this.keysDown && this.canShoot(gameTicks)) {
+            let bullets = this.onShot();
+
+            bullets.forEach(bullet => {
+                global.addObject(bullet);
+            })
+        }
     }
 
     canShoot(gameTicks) {
@@ -67,6 +89,10 @@ module.exports = class Player {
         }
 
         return false;
+    }
+
+    onCollision(object) {
+
     }
 
     onShot() {

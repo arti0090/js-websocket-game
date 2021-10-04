@@ -27,6 +27,14 @@ global.removeObject = (object) => {
     gameEngine.addObjectToRemove(object);
 }
 
+global.addObject = (object) => {
+    gameEngine.addObject(object);
+}
+
+global.getPlayerById = (id) => {
+    return gameEngine.getPlayerById(id);
+}
+
 const port = process.env.PORT || 3000
 server.listen(port, () => {
     console.log('listening on: *', port);

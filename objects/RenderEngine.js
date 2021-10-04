@@ -68,7 +68,7 @@ class RenderEngine{
 
         })
 
-        this.gameInterface.render(this.canvas, data.game.players.filter(player => player.id === this.playerId)[0], this.dimensions, topPlayerData, data.game.enemies.length);
+        this.gameInterface.render(this.canvas, data.player, this.dimensions, topPlayerData, data.game.enemies.length);
     }
 
     renderPlayer(element) {
