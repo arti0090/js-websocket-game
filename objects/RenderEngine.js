@@ -4,10 +4,22 @@ class RenderEngine{
         this.players = [];
         this.bullets = [];
         this.enemies = [];
+        this.gameInterface = new GameInterface();
+        this.playerId = null;
+        this.dimensions = {};
+        this.ticks = 0;
     }
 
     addPlayers = (data)  => {
 
+    }
+
+    setPlayerId(id) {
+        this.playerId = id;
+    }
+
+    setDimensions(dimensions) {
+        this.dimensions = dimensions;
     }
 
     update = () => {
@@ -15,14 +27,37 @@ class RenderEngine{
     }
 
     render = (data) => {
+        this.ticks++;
+
+        this.players = [];
+        this.enemies = [];
+        this.bullets = [];
+
         this.canvas.clear();
+
+
         let maxScore = 0;
+        let topPlayer = null;
+        let playerColor = null;
+
         data.game.players.forEach(data => {
             this.renderPlayer(data);
             if (data.points > maxScore) {
                 maxScore = data.points;
+                topPlayer = data.name;
+                playerColor = data.color;
             }
         })
+
+        if (topPlayer === null) {
+            topPlayer = 'anon';
+        }
+
+        let topPlayerData = {
+            name: topPlayer,
+            points: maxScore,
+            color: playerColor
+        }
 
         data.game.bullets.forEach(data => {
             this.renderBullet(data);
@@ -33,9 +68,7 @@ class RenderEngine{
 
         })
 
-        this.canvas.draw(0, 0, 500, 30, 'black');
-        this.canvas.write(`Leading player points: ${maxScore}`, 10, 20);
-        this.canvas.write(`Enemies: ${data.game.enemies.length}`, 300, 20);
+        this.gameInterface.render(this.canvas, data.game.players.filter(player => player.id === this.playerId)[0], this.dimensions, topPlayerData, data.game.enemies.length);
     }
 
     renderPlayer(element) {

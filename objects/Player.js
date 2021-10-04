@@ -15,10 +15,13 @@ class Player {
         this.points = 0;
         this.currentHealth = 10;
         this.maxHealth = 10;
+        this.name = null;
     }
+
     render(canvas) {
         canvas.draw(this.pos_x, this.pos_y, this.width, this.height, this.color);
-        canvas.write(this.points, this.pos_x + 5, this.pos_y + 10);
+        canvas.write(this.name ?? '', this.pos_x + 5, this.pos_y + 10);
+        canvas.write(this.points, this.pos_x + 5, this.pos_y + 20);
         canvas.draw(this.pos_x + this.width + 2, this.pos_y, 6, this.height, 'white');
         canvas.draw(this.pos_x + this.width + 2, this.pos_y, 6 ,this.height * (this.bulletCooldownLeft / this.bulletCooldown) , 'green');
     }

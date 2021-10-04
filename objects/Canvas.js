@@ -3,7 +3,7 @@ class Canvas{
         this.container = document.querySelector(container);
         this.width = 0;
         this.height = 0;
-        this.createCanvas('500px', '500px');
+        this.createCanvas('1000px', '1000px');
         this.defaultColor = 'white';
         this.defaultFont = "Arial";
         this.defaultFontSize = "20px";
@@ -20,12 +20,13 @@ class Canvas{
     }
 
     write = (text, x, y) => {
-        this.context.fillStyle = this.defaultColor;
+        this.context.fillStyle = this.currentColor;
         this.context.fillText(text, x, y);
     }
 
     setFillColor = (color = this.defaultColor) => {
         this.context.fillStyle = color;
+        this.currentColor = color;
     }
 
     setFont = (font = this.defaultFont, size = this.defaultFontSize) => {

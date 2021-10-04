@@ -24,10 +24,15 @@ module.exports = class Player {
         this.type = ObjectTypes.TYPE_PLAYER;
         this.removed = false;
         this.type = ObjectTypes.TYPE_PLAYER;
+        this.maxBullets = 5;
+        this.bullets = 5;
+        this.name = null
+        this.render = true;
     }
 
     data() {
         return {
+            id: this.id,
             pos_x: this.pos_x,
             pos_y: this.pos_y,
             width: this.width,
@@ -36,11 +41,16 @@ module.exports = class Player {
             points: this.points,
             bulletCooldown: this.bulletCooldown,
             bulletCooldownLeft: this.bulletCooldownLeft,
+            currentHealth: this.currentHealth,
+            maxHealth: this.maxHealth,
+            velocity: this.velocity,
+            name: this.name,
         }
     }
 
     remove() {
         this.removed = true;
+
     }
 
     update(gameTicks) {

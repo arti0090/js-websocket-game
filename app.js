@@ -19,6 +19,10 @@ global.uuid = () => {
 let gameEngine = new GameEngine();
 gameEngine.init();
 
+global.dimensions = () => {
+    return gameEngine.dimensions;
+}
+
 global.removeObject = (object) => {
     gameEngine.addObjectToRemove(object);
 }
@@ -30,12 +34,12 @@ server.listen(port, () => {
 
 clients = [];
 
-setInterval(function(){ game()}, 1000/60);
+setInterval(function(){ game()}, 1000/90);
 
 io.on('connection', socket => {
     socket.id = clients.length;
 
-    socket.emit('connected', {id: socket.id});
+    socket.emit('connected', {id: socket.id, dimensions: gameEngine.dimensions});
     gameEngine.addPlayer(socket.id);
     clients.push(socket);
 
@@ -45,6 +49,10 @@ io.on('connection', socket => {
 
     socket.on('stop', data => {
         gameEngine.handleStop(socket, data);
+    })
+
+    socket.on('login', data => {
+        gameEngine.login(socket, data);
     })
 
     socket.on('disconnect', () => {
@@ -60,8 +68,9 @@ io.on('connection', socket => {
 
 function render() {
     clients.forEach(client => {
-        if (client !== false)
-            client.emit('test', {id: client.id, game: gameEngine.getData()});
+        if (client !== false) {
+            client.emit('test', {id: client.id, game: gameEngine.getData(), player: gameEngine.getPlayerById(client.id)});
+        }
     })
 }
 

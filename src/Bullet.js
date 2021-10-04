@@ -20,10 +20,12 @@ module.exports = class Bullet {
         this.type = ObjectTypes.TYPE_BULLET;
         this.removed = false;
         this.type = ObjectTypes.TYPE_BULLET;
+        this.owner.bullets--;
     }
 
     remove() {
         this.removed = true;
+        this.owner.bullets++;
     }
 
     data() {
