@@ -2,6 +2,7 @@
 
 const Bullet = require('./Bullet');
 const ObjectTypes = require('./ObjectTypes');
+const functions = require('./functions');
 
 module.exports = class Player {
     constructor(id, pos_x, pos_y, color = "red") {
@@ -16,7 +17,7 @@ module.exports = class Player {
         this.color = color;
         this.keysDown = [];
         this.lastShot = 0;
-        this.bulletCooldown = 15;
+        this.bulletCooldown = 10;
         this.bulletCooldownLeft = this.bulletCooldown;
         this.velocity = 3;
         this.points = 0;
@@ -26,10 +27,11 @@ module.exports = class Player {
         this.removed = false;
         this.collidesWith = [];
         this.maxBullets = 5;
-        this.bullets = 5;
+        this.bullets = 0;
         this.name = null
         this.render = true;
-        this.dimensions = global.dimensions()
+        this.dimensions = global.dimensions();
+        this.weapon = functions.getRandomWeapon();
     }
 
     data() {
@@ -47,6 +49,7 @@ module.exports = class Player {
             maxHealth: this.maxHealth,
             velocity: this.velocity,
             name: this.name,
+            weapon: this.weapon.name,
         }
     }
 
@@ -82,7 +85,7 @@ module.exports = class Player {
     }
 
     canShoot(gameTicks) {
-        if (this.bulletCooldownLeft >= this.bulletCooldown) {
+        if (this.bulletCooldownLeft >= this.bulletCooldown && this.bullets < this.maxBullets) {
             this.lastShot = gameTicks;
             this.bulletCooldownLeft = 0;
             return true
@@ -96,7 +99,7 @@ module.exports = class Player {
     }
 
     onShot() {
-        return [new Bullet(0, this.pos_x + this.width/2 , this.pos_y, this)];
+        return this.weapon.shot(this);
     }
 
     moveLeft() {
