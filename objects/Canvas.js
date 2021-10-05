@@ -8,6 +8,8 @@ class Canvas{
         this.defaultFont = "Arial";
         this.defaultFontSize = "20px";
         this.currentColor = 'white';
+        this.images = [];
+        this.loadingImages = [];
     }
 
     createCanvas(width, height) {
@@ -17,6 +19,19 @@ class Canvas{
         this.canvas.style.height = height;
         this.container.append(this.canvas);
         this.context = this.canvas.getContext('2d');
+    }
+
+    image = (image, x, y, w, h) => {
+        let img = this.images.filter(object => object.name === image).shift();
+
+        if (!img) {
+            if (!this.loadingImages.includes(image)) {
+                loadImage(image);
+            }
+            this.draw(x,y,w,h);
+            return;
+        }
+        this.context.drawImage(img.image, x, y, w, h);
     }
 
     write = (text, x, y) => {

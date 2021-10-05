@@ -2,6 +2,7 @@
 
 const Bullet = require('./Bullet');
 const ObjectTypes = require('./ObjectTypes');
+const functions = require('./functions');
 
 module.exports = class Enemy {
     constructor(id, pos_x, pos_y, width, height, velocity = null) {
@@ -16,9 +17,10 @@ module.exports = class Enemy {
         this.maxHealth = 1;
         this.currentHealth = this.maxHealth;
         this.type = ObjectTypes.TYPE_ENEMY;
-        this.collidesWith = [ObjectTypes.TYPE_BULLET]
+        this.collidesWith = [ObjectTypes.TYPE_BULLET];
         this.removed = false;
         this.render = true;
+        this.image = `enemy_${functions.getRandomInt(1,4)}.png`;
     }
 
     remove() {
@@ -34,6 +36,7 @@ module.exports = class Enemy {
             currentHealth: this.currentHealth,
             maxHealth: this.maxHealth,
             color: this.color,
+            image: this.image,
         }
     }
 

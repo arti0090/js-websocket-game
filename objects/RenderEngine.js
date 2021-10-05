@@ -10,8 +10,11 @@ class RenderEngine{
         this.ticks = 0;
     }
 
-    addPlayers = (data)  => {
-
+    loadImage(image) {
+        this.canvas.loadingImages.push(image);
+    }
+    addImage(image) {
+        this.canvas.images.push(image);
     }
 
     setPlayerId(id) {
