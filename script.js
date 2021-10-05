@@ -11,7 +11,24 @@ socket.on('test', data => {
 socket.on('connected', data => {
     engine.setPlayerId(data.socketId);
     engine.setDimensions(data.dimensions);
+
+    data.images.forEach(image => {
+        loadImage(image);
+    })
 })
+
+function loadImage(src) {
+    let img = new Image();
+    img.src = `./img/${src}`;
+    engine.canvas.loadingImages.push(src);
+
+    img.onload = function () {
+        engine.addImage({
+            name: src,
+            image: this
+        })
+    }
+}
 
 function debug(){
     socket.emit('debug');

@@ -24,9 +24,6 @@ module.exports = class GameEngine {
 
         this.data = {
             objects: this.generateEnemies(20),
-            // players: [],
-            // enemies: this.generateEnemies(20),
-            // bullets: [],
             connectedPlayers: 0,
         };
         this.cache = {
@@ -51,7 +48,7 @@ module.exports = class GameEngine {
         this.handleRemoval();
 
         if (this.data.objects.filter(obj => obj.type === ObjectTypes.TYPE_ENEMY).length === 0) {
-            this.cache.level++;
+            // this.cache.level++;
             this.data.objects = this.data.objects.concat(this.generateEnemies(20, this.cache.level));
         }
 

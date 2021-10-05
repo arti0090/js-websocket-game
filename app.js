@@ -35,6 +35,8 @@ global.getPlayerById = (id) => {
     return gameEngine.getPlayerById(id);
 }
 
+global.images = [];
+
 const port = process.env.PORT || 3000
 server.listen(port, () => {
     console.log('listening on: *', port);
@@ -47,7 +49,7 @@ setInterval(function(){ game()}, 1000/90);
 io.on('connection', socket => {
     socket.id = clients.length;
 
-    socket.emit('connected', {id: socket.id, dimensions: gameEngine.dimensions});
+    socket.emit('connected', {id: socket.id, dimensions: gameEngine.dimensions, images: global.images});
     gameEngine.addPlayer(socket.id);
     clients.push(socket);
 
