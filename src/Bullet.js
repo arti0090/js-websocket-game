@@ -14,7 +14,8 @@ module.exports = class Bullet {
         this.width = 3;
         this.height = 10;
         this.color = "red";
-        this.velocity = 8;
+        this.velocityY = 4;
+        this.velocityX = 0;
         this.damage = 3;
         this.owner = object;
         this.type = ObjectTypes.TYPE_BULLET;
@@ -22,12 +23,12 @@ module.exports = class Bullet {
         this.collidesWith = [ObjectTypes.TYPE_ENEMY]
         this.removed = false;
         this.render = true;
-        this.owner.bullets--;
+        this.owner.bullets++;
     }
 
     remove() {
         this.removed = true;
-        this.owner.bullets++;
+        this.owner.bullets--;
     }
 
     checkCollision(object) {
@@ -54,7 +55,9 @@ module.exports = class Bullet {
     }
 
     update() {
-        this.pos_y -= this.velocity;
+        this.pos_y -= this.velocityY * this.owner.weapon.speed;
+        this.pos_x -= this.velocityX* this.owner.weapon.speed;
+
         if (this.pos_y < 0) {
             global.removeObject(this);
         }

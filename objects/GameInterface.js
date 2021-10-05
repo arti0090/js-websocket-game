@@ -30,6 +30,9 @@ class GameInterface {
         canvas.write(`Speed:`, 5, 110);
         canvas.write(`${data.velocity}`, 5, 120);
 
+        canvas.write(`Weapon:`, 5, 140);
+        canvas.write(`${data.weapon.name}`, 5, 150);
+
         canvas.draw(0, 410, dimensions.startX, 25, data.color);
 
         canvas.write(`Name:`, 5, 420);
