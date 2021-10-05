@@ -22,6 +22,7 @@ module.exports = class Player {
         this.velocity = 3;
         this.points = 0;
         this.currentHealth = 10;
+        this.bulletSpeed = 80;
         this.maxHealth = 10;
         this.type = ObjectTypes.TYPE_PLAYER;
         this.removed = false;
@@ -50,6 +51,8 @@ module.exports = class Player {
             velocity: this.velocity,
             name: this.name,
             weapon: this.weapon.name,
+            maxBullets: this.maxBullets,
+            bulletSpeed: this.bulletSpeed
         }
     }
 

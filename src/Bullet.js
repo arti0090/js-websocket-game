@@ -18,6 +18,7 @@ module.exports = class Bullet {
         this.velocityX = 0;
         this.damage = 3;
         this.owner = object;
+        this.velocity = this.owner.bulletSpeed / 100;
         this.type = ObjectTypes.TYPE_BULLET;
         this.collision = true;
         this.collidesWith = [ObjectTypes.TYPE_ENEMY]
@@ -55,8 +56,8 @@ module.exports = class Bullet {
     }
 
     update() {
-        this.pos_y -= this.velocityY * this.owner.weapon.speed;
-        this.pos_x -= this.velocityX* this.owner.weapon.speed;
+        this.pos_y -= this.velocityY * this.velocity * this.owner.weapon.speed;
+        this.pos_x -= this.velocityX * this.velocity * this.owner.weapon.speed;
 
         if (this.pos_y < 0) {
             global.removeObject(this);

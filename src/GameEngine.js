@@ -59,7 +59,8 @@ module.exports = class GameEngine {
         this.data.objects.forEach(object => {
             this.data.objects.filter(obj => {
                 return (
-                    object.collidesWith.includes(obj.type)
+                    object.collidesWith.includes(obj.type) &&
+                    object.removed === false
                 );
             }).forEach(collider => {
                 if (collider.checkCollision(object)) {
