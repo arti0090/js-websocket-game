@@ -33,6 +33,7 @@ module.exports = class Player {
         this.render = true;
         this.dimensions = global.dimensions();
         this.weapon = functions.getRandomWeapon();
+        this.image = 'player.png';
     }
 
     data() {
@@ -52,7 +53,8 @@ module.exports = class Player {
             name: this.name,
             weapon: this.weapon.name,
             maxBullets: this.maxBullets,
-            bulletSpeed: this.bulletSpeed
+            bulletSpeed: this.bulletSpeed,
+            image: this.image
         }
     }
 
