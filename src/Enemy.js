@@ -17,9 +17,14 @@ module.exports = class Enemy {
         this.maxHealth = 1;
         this.currentHealth = this.maxHealth;
         this.type = ObjectTypes.TYPE_ENEMY;
+        this.bulletSpeed = 100;
         this.collidesWith = [ObjectTypes.TYPE_BULLET];
         this.removed = false;
         this.render = true;
+        this.damage = 1;
+        this.weapon = {
+            speed: 2,
+        }
         this.image = `enemy_${functions.getRandomInt(1,4)}.png`;
     }
 
@@ -41,6 +46,10 @@ module.exports = class Enemy {
     }
 
     update () {
+        if (Math.random() < 0.001) {
+            this.shot();
+        }
+
         if (this.pos_y < 400 && this.pos_y > 380) {
             this.velocityY = -10;
         }
@@ -73,6 +82,16 @@ module.exports = class Enemy {
                 global.removeObject(this);
             }
         }
+    }
+
+    shot() {
+        let bullet = new Bullet(0, this.pos_x + this.width / 2, this.pos_y + this.height, this);
+
+        bullet.collidesWith = [ObjectTypes.TYPE_PLAYER, ObjectTypes.TYPE_BULLET];
+        bullet.velocityY = -1;
+        bullet.damage = this.damage;
+
+        global.addObject(bullet);
     }
 
     checkCollision(object) {

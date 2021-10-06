@@ -5,7 +5,7 @@ const Bullet = require('../Bullet');
 module.exports = class SingleShot {
     constructor() {
         this.name = 'Single Shot';
-        this.speed = 0.5;
+        this.speed = 1;
     }
 
     shot(player) {

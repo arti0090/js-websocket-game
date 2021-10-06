@@ -44,7 +44,7 @@ server.listen(port, () => {
 
 clients = [];
 
-setInterval(function(){ game()}, 1000/90);
+setInterval(function(){ game()}, 1000/60);
 
 io.on('connection', socket => {
     socket.id = clients.length;

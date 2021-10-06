@@ -33,6 +33,12 @@ class GameInterface {
         canvas.write(`Weapon:`, 5, 140);
         canvas.write(`${data.weapon.name}`, 5, 150);
 
+        canvas.write(`Bullets:`, 5, 170);
+        canvas.write(`${data.maxBullets}`, 5, 180);
+
+        canvas.write(`Bullet Speed:`, 5, 200);
+        canvas.write(`${data.bulletSpeed}`, 5, 210);
+
         canvas.draw(0, 410, dimensions.startX, 25, data.color);
 
         canvas.write(`Name:`, 5, 420);

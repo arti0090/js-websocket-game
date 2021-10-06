@@ -59,7 +59,10 @@ module.exports = class GameEngine {
         this.data.objects.forEach(object => {
             this.data.objects.filter(obj => {
                 return (
-                    object.collidesWith.includes(obj.type)
+                    object.collidesWith.includes(obj.type) &&
+                    obj.collidesWith.includes(object.type) &&
+                    object.removed === false &&
+                    obj !== object
                 );
             }).forEach(collider => {
                 if (collider.checkCollision(object)) {
@@ -83,7 +86,7 @@ module.exports = class GameEngine {
         });
 
         let bullets = this.data.objects.filter(object => {
-            return ( object.type === ObjectTypes.TYPE_BULLET && object.render === true);
+            return ( (object.type === ObjectTypes.TYPE_BULLET) && object.render === true);
         });
 
         for(let i = 0; i < players.length; i++) {

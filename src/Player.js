@@ -22,10 +22,11 @@ module.exports = class Player {
         this.velocity = 3;
         this.points = 0;
         this.currentHealth = 10;
+        this.bulletSpeed = 80;
         this.maxHealth = 10;
         this.type = ObjectTypes.TYPE_PLAYER;
         this.removed = false;
-        this.collidesWith = [];
+        this.collidesWith = [ObjectTypes.TYPE_BULLET];
         this.maxBullets = 5;
         this.bullets = 0;
         this.name = null
@@ -50,6 +51,8 @@ module.exports = class Player {
             velocity: this.velocity,
             name: this.name,
             weapon: this.weapon.name,
+            maxBullets: this.maxBullets,
+            bulletSpeed: this.bulletSpeed
         }
     }
 
@@ -94,8 +97,22 @@ module.exports = class Player {
         return false;
     }
 
-    onCollision(object) {
+    checkCollision(object) {
+        return (
+            object.pos_x + object.width >= this.pos_x &&
+            object.pos_x <= this.pos_x + this.width &&
+            object.pos_y + object.height >= this.pos_y &&
+            object.pos_y <= this.pos_y + this.height
+        );
+    }
 
+    onCollision(object) {
+        this.currentHealth -= object.damage;
+
+        if (this.currentHealth <= 0) {
+            this.points -= 100;
+            this.currentHealth = this.maxHealth;
+        }
     }
 
     onShot() {
