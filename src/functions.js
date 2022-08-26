@@ -3,6 +3,10 @@ const DoubleShot = require('./weapons/DoubleShot');
 const TripleShot = require('./weapons/TripleShot');
 const QuadShot = require('./weapons/QuadShot');
 
+const colors = [
+    'rgb(50, 168, 82)',
+]
+
 module.exports = {
     getRandomInt: function(min, max) {
         min = Math.ceil(min);
@@ -18,5 +22,9 @@ module.exports = {
         let items = [new SingleShot(), new DoubleShot(), new TripleShot(), new QuadShot()];
 
         return items[Math.floor(Math.random()*items.length)];
+    },
+
+    getRandomColor: function() {
+        return this.colors[this.getRandomInt(0, this.colors.length)];
     }
 }
